@@ -6,6 +6,13 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, BatchNormalization, Dropout
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping, ReduceLROnPlateau
+from git import repo
+
+'''
+This is the code used to train a CNN model for classification of histopathology images
+used to observe the phenomenon called deep double descent in machine learning via
+model complexity
+'''
 
 IMAGE_SIZE = 96
 
@@ -33,8 +40,13 @@ def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32):
 
      return train_gen, val_gen
 def get_model(kernel_size=(3,3), pool_size=(2,2), first_filters=128, second_filters=256, third_filters=512, fourth_filters=1024, fifth_filters=2048):
+   
+    '''
+    Structure of the complex model. Adam is used as an optimizer to adjust the 
+    learning rate during training, aiding the SGD when it is stuck.
+    '''
+    
     model = Sequential()
-
     model.add(Conv2D(first_filters, kernel_size, activation='relu', padding='same', input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3)))
     model.add(BatchNormalization())
     model.add(MaxPool2D(pool_size=pool_size))
@@ -75,6 +87,11 @@ model = get_model()
 
 train_gen, val_gen = get_pcam_generators(r'C:\Users\20202882\OneDrive - TU Eindhoven\BMT\Project AI\8p361-project-imaging-master\8p361-project-imaging-master\assignments')
 
+'''
+All callbacks and files are getting stored to be used 
+in later analysis via tensorboard
+'''
+
 model_name = 'double_descent_extend_v2'
 model_filepath = model_name+'.json'
 weights_filepath = model_name + '_weights.hdf5'
@@ -97,3 +114,4 @@ history = model.fit(train_gen, steps_per_epoch=train_steps,
                     validation_steps=val_steps,
                     epochs=200,
                     callbacks=callbacks_list)
+
