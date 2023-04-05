@@ -15,6 +15,7 @@ model complexity
 '''
 
 IMAGE_SIZE = 96
+data_dir = 'path/to/data'
 
 def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32):
 
@@ -85,7 +86,8 @@ def get_model(kernel_size=(3,3), pool_size=(2,2), first_filters=128, second_filt
 
 model = get_model()
 
-train_gen, val_gen = get_pcam_generators(r'C:\Users\20202882\OneDrive - TU Eindhoven\BMT\Project AI\8p361-project-imaging-master\8p361-project-imaging-master\assignments')
+
+train_gen, val_gen = get_pcam_generators(data_dir)
 
 '''
 All callbacks and files are getting stored to be used 
