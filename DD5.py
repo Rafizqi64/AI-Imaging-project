@@ -1,18 +1,17 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 30 12:57:54 2023
-
-@author: rafi
-"""
 import os
 import numpy as np
 import tensorflow as tf
+import git
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, BatchNormalization, Dropout
-#from tensorflow.keras.optimizers import SGD
-from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
+from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping, ReduceLROnPlateau
+
+'''This is the code used to train a CNN model for classification of histopathology images
+   used to observe the phenomenon called deep double descent in machine learning via
+   model complexity. Make sure you've configured your machine to run with a GPU for 
+   the reason that training is very time consuming.'''
 
 IMAGE_SIZE = 96
 
@@ -39,16 +38,12 @@ def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32):
                                              class_mode='binary')
 
      return train_gen, val_gen
-
-def get_model(kernel_size=(3,3), pool_size=(2,2), first_filters=64, second_filters=128, third_filters=256, fourth_filters=1024):
+def get_model(kernel_size=(3,3), pool_size=(2,2), first_filters=64, second_filters=128, third_filters=256, fourth_filters=512, ):
+   
+    '''Structure of the complex model. Adam is used as an optimizer to adjust the 
+       learning rate during training, aiding the SGD when it is stuck.'''
     
-    '''
-    Structure of the complex model. Adam is used as an optimizer to adjust the 
-    learning rate during training, aiding the SGD when it is stuck.
-    ''' 
-    
-    model = Sequential()    
-    
+    model = Sequential()
     model.add(Conv2D(first_filters, kernel_size, activation='relu', padding='same', input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3)))
     model.add(BatchNormalization())
     model.add(MaxPool2D(pool_size=pool_size))
@@ -65,7 +60,7 @@ def get_model(kernel_size=(3,3), pool_size=(2,2), first_filters=64, second_filte
     # model.add(BatchNormalization())
     # model.add(MaxPool2D(pool_size=pool_size))
     
-    model.add(Flatten())
+    model.add(Flatten()
     # model.add(Dense(1024, activation='relu'))
     # model.add(Dropout(0.5))
     model.add(Dense(512, activation='relu'))
@@ -81,11 +76,12 @@ def get_model(kernel_size=(3,3), pool_size=(2,2), first_filters=64, second_filte
 
 model = get_model()
 
-#Adjust path to where the dataset is stored
 train_gen, val_gen = get_pcam_generators('/home/rafi/TUe/8p361-project-imaging/')
 
+'''All callbacks and files are getting stored to be used 
+   in later analysis via tensorboard'''
 
-model_name = 'DD5.1'
+model_name = 'DD5'
 model_filepath = model_name+'.json'
 weights_filepath = model_name + '_weights.hdf5'
 
@@ -108,3 +104,10 @@ history = model.fit(train_gen, steps_per_epoch=train_steps,
                     epochs=40,
                     callbacks=callbacks_list)
 
+'''Use of git to automatically push to the configured repository. 
+   Developer only, please do not uncomment.'''
+
+# repo = git.Repo('.')
+# repo.index.commit('Sucessfully comitted the latest version')
+# origin = repo.remote('origin')
+# origin.push()
