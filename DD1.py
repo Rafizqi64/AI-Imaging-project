@@ -83,7 +83,7 @@ train_gen, val_gen = get_pcam_generators('/home/rafi/TUe/8p361-project-imaging/'
 '''All callbacks and files are getting stored to be used 
    in later analysis via tensorboard'''
 
-model_name = 'double_descent_extend_v2'
+model_name = 'DD1'
 model_filepath = model_name+'.json'
 weights_filepath = model_name + '_weights.hdf5'
 
